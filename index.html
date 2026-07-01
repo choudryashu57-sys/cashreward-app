@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CashReward App</title>
+    
+    <!-- Ad SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='11214225' data-sdk='show_11214225'></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #121212; color: #ffffff; }
+        .dark-bg { background-color: #121212; }
+        .card-bg { background-color: #1e1e1e; }
+        .text-accent { color: #ff8c00; }
+        .btn-accent { background-color: #ff8c00; color: #121212; font-weight: bold; transition: 0.2s; }
+        .btn-accent:active { transform: scale(0.95); }
+        .input-field { background-color: #2c2c2c; border: 1px solid #444; color: white; }
+        .main-page { display: none; flex-direction: column; }
+        .main-page.active { display: flex; animation: fadeIn 0.4s ease-in-out; }
+        .sub-page { display: none; }
+        .sub-page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="max-w-md mx-auto">
+
+    <!-- Global Loader -->
+    <div id="loader" class="fixed inset-0 dark-bg flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
+    </div>
+
+    <!-- Auth View -->
+    <div id="auth-section" class="min-h-screen p-6 justify-center main-page">
+        <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
+        <p class="text-center text-gray-400 mb-8">Login or Signup to continue</p>
+        
+        <div id="login-view">
+            <input id="login-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl input-field mb-4">
+            <input id="login-password" type="password" placeholder="Password" class="w-full p-4 rounded-xl input-field mb-4">
+            <button id="login-btn" class="w-full p-4 rounded-xl btn-accent mb-4">Login</button>
+            <p class="text-center text-gray-400">New here? <span id="to-signup" class="text-accent cursor-pointer">Create Account</span></p>
+        </div>
+
+        <div id="signup-view" class="hidden">
+            <input id="signup-name" type="text" placeholder="Full Name" class="w-full p-4 rounded-xl input-field mb-4">
+            <input id="signup-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl input-field mb-4">
+            <input id="signup-password" type="password" placeholder="Password" class="w-full p-4 rounded-xl input-field mb-4">
+            <button id="signup-btn" class="w-full p-4 rounded-xl btn-accent mb-4">Sign Up</button>
+            <p class="text-center text-gray-400">Have account? <span id="to-login" class="text-accent cursor-pointer">Login</span></p>
+        </div>
+    </div>
+
+    <!-- App View -->
+    <div id="app-container" class="min-h-screen main-page">
+        <header class="p-4 flex justify-between items-center bg-zinc-900 sticky top-0 z-10">
+            <span class="font-bold text-xl">CashReward</span>
+            <div class="flex gap-4">
+                <i data-lucide="bell" class="w-6 h-6"></i>
+                <i data-lucide="user" class="w-6 h-6" onclick="navigateTo('profile-page')"></i>
+            </div>
+        </header>
+
+        <main class="flex-grow p-4">
+            <!-- Home -->
+            <div id="home-page" class="sub-page active">
+                <div class="card-bg p-6 rounded-2xl mb-6">
+                    <p class="text-gray-400 text-sm">Balance</p>
+                    <h2 class="text-3xl font-bold"><span id="balance-txt">0</span> Coins</h2>
+                </div>
+                <h3 class="font-bold mb-4">Daily Tasks</h3>
+                <div class="bg-orange-500 p-4 rounded-2xl flex justify-between items-center text-black mb-3">
+                    <div>
+                        <p class="font-bold">Watch Video Ad</p>
+                        <p class="text-xs">Reward: 50 Coins</p>
+                    </div>
+                    <button onclick="claimReward()" class="bg-white px-4 py-2 rounded-lg font-bold text-sm">Claim</button>
+                </div>
+            </div>
+
+            <!-- Wallet -->
+            <div id="wallet-page" class="sub-page">
+                <h2 class="text-xl font-bold mb-4">Withdraw Coins</h2>
+                <div class="card-bg p-4 rounded-2xl">
+                    <input id="withdraw-amt" type="number" placeholder="Enter Coins" class="w-full p-4 rounded-xl input-field mb-4">
+                    <select id="withdraw-method" class="w-full p-4 rounded-xl input-field mb-4">
+                        <option value="Paytm">Paytm</option>
+                        <option value="UPI">UPI ID</option>
+                    </select>
+                    <input id="payment-id" type="text" placeholder="Number / UPI ID" class="w-full p-4 rounded-xl input-field mb-4">
+                    <button id="withdraw-btn" class="w-full p-4 rounded-xl btn-accent">Request Payout</button>
+                </div>
+            </div>
+
+            <!-- Profile -->
+            <div id="profile-page" class="sub-page text-center">
+                <div class="w-20 h-20 bg-zinc-800 rounded-full mx-auto mb-4 flex items-center justify-center">
+                    <i data-lucide="user" class="w-10 h-10 text-orange-500"></i>
+                </div>
+                <h2 id="user-name" class="font-bold text-xl">Loading...</h2>
+                <p id="user-email" class="text-gray-500 mb-8"></p>
+                <button id="logout-btn" class="w-full p-4 bg-red-600 rounded-xl font-bold">Logout</button>
+            </div>
+        </main>
+
+        <nav class="grid grid-cols-3 p-2 bg-zinc-900 border-t border-zinc-800">
+            <button onclick="navigateTo('home-page')" class="flex flex-col items-center py-2"><i data-lucide="home"></i><span class="text-[10px]">Home</span></button>
+            <button onclick="navigateTo('wallet-page')" class="flex flex-col items-center py-2"><i data-lucide="wallet"></i><span class="text-[10px]">Wallet</span></button>
+            <button onclick="navigateTo('profile-page')" class="flex flex-col items-center py-2"><i data-lucide="user"></i><span class="text-[10px]">Profile</span></button>
+        </nav>
+    </div>
+
+    <!-- Alert Modal -->
+    <div id="alert-box" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-6">
+        <div class="bg-zinc-800 p-6 rounded-2xl w-full text-center">
+            <p id="alert-msg" class="mb-6"></p>
+            <button onclick="closeAlert()" class="btn-accent px-8 py-2 rounded-lg">OK</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // UPDATED CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyCAVkef_IKMFfnvY3jonZthtJlz8_8W1I8",
+            authDomain: "task-and-earn-131ce.firebaseapp.com",
+            databaseURL: "https://task-and-earn-131ce-default-rtdb.firebaseio.com",
+            projectId: "task-and-earn-131ce",
+            storageBucket: "task-and-earn-131ce.firebasestorage.app",
+            messagingSenderId: "769440982357",
+            appId: "1:769440982357:web:e80bda0aeaeaf8a7f63bdc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let userState = null;
+        const loader = document.getElementById('loader');
+
+        window.onload = () => {
+            lucide.createIcons();
+            onAuthStateChanged(auth, handleAuth);
+        };
+
+        async function handleAuth(user) {
+            loader.style.display = 'flex';
+            if (user) {
+                const docRef = doc(db, "users", user.uid);
+                try {
+                    const snap = await getDoc(docRef);
+                    if (snap.exists()) {
+                        userState = snap.data();
+                    } else {
+                        userState = { name: user.email.split('@')[0], email: user.email, balance: 50, isBlocked: false };
+                        await setDoc(docRef, userState);
+                    }
+
+                    if(userState.isBlocked) {
+                        alert("Your account is blocked.");
+                        await signOut(auth);
+                    } else {
+                        updateUI();
+                        switchPage('app-container');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    alert("Error loading data. Check Firestore Rules!");
+                }
+            } else {
+                switchPage('auth-section');
+            }
+            loader.style.display = 'none';
+        }
+
+        function updateUI() {
+            if(!userState) return;
+            document.getElementById('balance-txt').innerText = userState.balance;
+            document.getElementById('user-name').innerText = userState.name;
+            document.getElementById('user-email').innerText = userState.email;
+        }
+
+        // Navigation
+        window.navigateTo = (pageId) => {
+            document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        };
+
+        function switchPage(id) {
+            document.querySelectorAll('.main-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Auth Actions
+        document.getElementById('login-btn').onclick = async () => {
+            const e = document.getElementById('login-email').value;
+            const p = document.getElementById('login-password').value;
+            loader.style.display = 'flex';
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); loader.style.display = 'none'; }
+        };
+
+        document.getElementById('signup-btn').onclick = async () => {
+            const n = document.getElementById('signup-name').value;
+            const e = document.getElementById('signup-email').value;
+            const p = document.getElementById('signup-password').value;
+            loader.style.display = 'flex';
+            try { await createUserWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); loader.style.display = 'none'; }
+        };
+
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
+        document.getElementById('to-signup').onclick = () => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); };
+        document.getElementById('to-login').onclick = () => { document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); };
+
+        // Ad System
+        window.claimReward = () => {
+            if (typeof window.show_11214225 === 'function') {
+                window.show_11214225().then(async () => {
+                    const newBal = userState.balance + 50;
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
+                    userState.balance = newBal;
+                    updateUI();
+                    customAlert("50 Coins Added!");
+                }).catch(() => customAlert("Ad failed to load"));
+            } else {
+                customAlert("Ad service offline");
+            }
+        };
+
+        // Payout
+        document.getElementById('withdraw-btn').onclick = async () => {
+            const amt = parseInt(document.getElementById('withdraw-amt').value);
+            const id = document.getElementById('payment-id').value;
+            if(amt < 5000 || amt > userState.balance || !id) return customAlert("Invalid Request (Min 5000)");
+
+            loader.style.display = 'flex';
+            try {
+                await addDoc(collection(db, "withdrawals"), { userId: auth.currentUser.uid, amount: amt, method: document.getElementById('withdraw-method').value, paymentId: id, status: 'pending', date: serverTimestamp() });
+                const newBal = userState.balance - amt;
+                await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
+                userState.balance = newBal;
+                updateUI();
+                customAlert("Withdrawal Success!");
+            } catch(e) { customAlert(e.message); }
+            loader.style.display = 'none';
+        };
+
+        // Custom Alerts
+        function customAlert(m) {
+            document.getElementById('alert-msg').innerText = m;
+            document.getElementById('alert-box').classList.remove('hidden');
+        }
+        window.closeAlert = () => document.getElementById('alert-box').classList.add('hidden');
+
+    </script>
+</body>
+</html>
