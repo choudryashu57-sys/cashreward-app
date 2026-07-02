@@ -24,17 +24,18 @@
         .sub-page { display: none; }
         .sub-page.active { display: block; }
         
-        /* Banner Style */
+        /* Fixed Banner Styling */
         .banner-box {
             width: 100%;
-            min-height: 100px;
+            min-height: 150px;
             background: #1a1a1a;
-            border: 1px dashed #333;
+            border: 1px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            margin-top: 20px;
+            border-radius: 16px;
+            margin-top: 25px;
+            position: relative;
             overflow: hidden;
         }
 
@@ -43,7 +44,6 @@
 </head>
 <body class="max-w-md mx-auto">
 
-    <!-- Global Loader -->
     <div id="loader" class="fixed inset-0 dark-bg flex items-center justify-center z-50">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-orange-500"></div>
     </div>
@@ -52,14 +52,12 @@
     <div id="auth-section" class="min-h-screen p-6 justify-center main-page">
         <h1 class="text-4xl font-bold text-center mb-2 text-accent">CashReward</h1>
         <p class="text-center text-gray-400 mb-8">Login or Signup to continue</p>
-        
         <div id="login-view">
             <input id="login-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl input-field mb-4">
             <input id="login-password" type="password" placeholder="Password" class="w-full p-4 rounded-xl input-field mb-4">
             <button id="login-btn" class="w-full p-4 rounded-xl btn-accent mb-4">Login</button>
             <p class="text-center text-gray-400">New here? <span id="to-signup" class="text-accent cursor-pointer">Create Account</span></p>
         </div>
-
         <div id="signup-view" class="hidden">
             <input id="signup-name" type="text" placeholder="Full Name" class="w-full p-4 rounded-xl input-field mb-4">
             <input id="signup-email" type="email" placeholder="Email" class="w-full p-4 rounded-xl input-field mb-4">
@@ -75,14 +73,12 @@
             <span class="font-bold text-xl">CashReward</span>
             <div class="flex gap-4">
                 <i data-lucide="bell" class="w-6 h-6"></i>
-                <i data-lucide="user" class="w-6 h-6" onclick="navigateTo('profile-page')"></i>
+                <i data-lucide="user" class="w-6 h-6 cursor-pointer" onclick="navigateTo('profile-page')"></i>
             </div>
         </header>
 
         <main class="flex-grow p-4">
-            <!-- Home -->
             <div id="home-page" class="sub-page active">
-                <!-- Balance Card -->
                 <div class="card-bg p-6 rounded-2xl mb-6">
                     <p class="text-gray-400 text-sm">Balance</p>
                     <h2 class="text-3xl font-bold"><span id="balance-txt">0</span> Coins</h2>
@@ -90,35 +86,38 @@
 
                 <h3 class="font-bold mb-4">Daily Tasks</h3>
                 
-                <!-- Task 1: Standard Video Ad -->
                 <div class="bg-orange-500 p-4 rounded-2xl flex justify-between items-center text-black mb-3">
-                    <div>
-                        <p class="font-bold">Watch Video Ad</p>
-                        <p class="text-xs">Reward: 50 Coins</p>
-                    </div>
+                    <div><p class="font-bold">Watch Video Ad</p><p class="text-xs">Reward: 50 Coins</p></div>
                     <button onclick="claimReward(50)" class="bg-white px-4 py-2 rounded-lg font-bold text-sm">Claim</button>
                 </div>
 
-                <!-- Task 2: NEW Interstitial Ad -->
                 <div class="bg-indigo-600 p-4 rounded-2xl flex justify-between items-center text-white mb-3">
-                    <div>
-                        <p class="font-bold">Premium Interstitial</p>
-                        <p class="text-xs">Reward: 100 Coins</p>
-                    </div>
+                    <div><p class="font-bold">Premium Interstitial</p><p class="text-xs">Reward: 100 Coins</p></div>
                     <button onclick="claimReward(100)" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm">Watch</button>
                 </div>
 
-                <!-- BANNER AD AREA -->
-                <div class="banner-box" id="banner-ad-container">
-                    <p class="text-[10px] text-gray-600 uppercase tracking-widest">Advertisement</p>
-                    <!-- The SDK will automatically try to inject here -->
+                <!-- BANNER AD AREA - FIXED -->
+                <div class="banner-box">
+                    <!-- Placeholder text while ad loads -->
+                    <div id="banner-placeholder" class="absolute inset-0 flex items-center justify-center text-gray-700 text-[10px] uppercase tracking-widest">
+                        Advertisement Loading...
+                    </div>
+                    
+                    <!-- This div is where some SDKs look for to inject -->
+                    <div id="container-11214225"></div> 
+
+                    <!-- If your ad network gave you a specific Banner Script, paste it below this line -->
+                    <script type="text/javascript">
+                        // Example: Some networks use this inside the div
+                        // atag.show('11214225'); 
+                    </script>
                 </div>
             </div>
 
             <!-- Wallet -->
             <div id="wallet-page" class="sub-page">
-                <h2 class="text-xl font-bold mb-4">Withdraw Coins</h2>
-                <div class="card-bg p-4 rounded-2xl">
+                <h2 class="text-xl font-bold mb-4 text-center">Wallet</h2>
+                <div class="card-bg p-6 rounded-2xl">
                     <input id="withdraw-amt" type="number" placeholder="Enter Coins" class="w-full p-4 rounded-xl input-field mb-4">
                     <select id="withdraw-method" class="w-full p-4 rounded-xl input-field mb-4">
                         <option value="Paytm">Paytm</option>
@@ -134,7 +133,7 @@
                 <div class="w-20 h-20 bg-zinc-800 rounded-full mx-auto mb-4 flex items-center justify-center">
                     <i data-lucide="user" class="w-10 h-10 text-orange-500"></i>
                 </div>
-                <h2 id="user-name" class="font-bold text-xl">Loading...</h2>
+                <h2 id="user-name" class="font-bold text-xl">User</h2>
                 <p id="user-email" class="text-gray-500 mb-8"></p>
                 <button id="logout-btn" class="w-full p-4 bg-red-600 rounded-xl font-bold">Logout</button>
             </div>
@@ -149,7 +148,7 @@
 
     <!-- Alert Modal -->
     <div id="alert-box" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-[100] p-6">
-        <div class="bg-zinc-800 p-6 rounded-2xl w-full text-center">
+        <div class="bg-zinc-800 p-6 rounded-2xl w-full max-w-xs text-center border border-zinc-700">
             <p id="alert-msg" class="mb-6"></p>
             <button onclick="closeAlert()" class="btn-accent px-8 py-2 rounded-lg">OK</button>
         </div>
@@ -173,52 +172,33 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
         let userState = null;
-        const loader = document.getElementById('loader');
 
         window.onload = () => {
             lucide.createIcons();
             onAuthStateChanged(auth, handleAuth);
-            loadBannerAd(); // Load banner on start
+            
+            // Try to load banner via In-App call
+            if (typeof window.show_11214225 === 'function') {
+                window.show_11214225('inApp').catch(e => console.log("Banner busy"));
+            }
         };
 
         async function handleAuth(user) {
-            loader.style.display = 'flex';
             if (user) {
-                const docRef = doc(db, "users", user.uid);
-                try {
-                    const snap = await getDoc(docRef);
-                    if (snap.exists()) {
-                        userState = snap.data();
-                    } else {
-                        userState = { name: user.email.split('@')[0], email: user.email, balance: 50, isBlocked: false };
-                        await setDoc(docRef, userState);
-                    }
-
-                    if(userState.isBlocked) {
-                        alert("Your account is blocked.");
-                        await signOut(auth);
-                    } else {
-                        updateUI();
-                        switchPage('app-container');
-                    }
-                } catch (e) {
-                    console.error(e);
-                    alert("Error loading data.");
+                const snap = await getDoc(doc(db, "users", user.uid));
+                if (snap.exists()) {
+                    userState = snap.data();
+                } else {
+                    userState = { name: user.email.split('@')[0], email: user.email, balance: 50, isBlocked: false };
+                    await setDoc(doc(db, "users", user.uid), userState);
                 }
+                updateUI();
+                switchPage('app-container');
             } else {
                 switchPage('auth-section');
             }
-            loader.style.display = 'none';
-        }
-
-        // FUNCTION TO LOAD BANNER AD
-        function loadBannerAd() {
-            if (typeof window.show_11214225 === 'function') {
-                // 'inApp' or 'pop' is usually used for banner-like behavior in this SDK
-                window.show_11214225('inApp').catch(e => console.log("Banner not ready"));
-            }
+            document.getElementById('loader').style.display = 'none';
         }
 
         function updateUI() {
@@ -238,7 +218,6 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // Ad System (Updated for variable rewards)
         window.claimReward = (amount) => {
             if (typeof window.show_11214225 === 'function') {
                 window.show_11214225().then(async () => {
@@ -246,48 +225,37 @@
                     await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
                     userState.balance = newBal;
                     updateUI();
-                    customAlert(`${amount} Coins Added Successfully!`);
-                }).catch(() => customAlert("Ad failed to load. Please try again."));
-            } else {
-                customAlert("Ad service offline");
+                    customAlert(`${amount} Coins Earned!`);
+                }).catch(() => customAlert("Ad not ready."));
             }
         };
 
-        // Auth & Payout Logic (Existing)
+        // Existing Logic
         document.getElementById('login-btn').onclick = async () => {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-password').value;
-            loader.style.display = 'flex';
-            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); loader.style.display = 'none'; }
+            try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
         };
-
         document.getElementById('signup-btn').onclick = async () => {
             const n = document.getElementById('signup-name').value;
             const e = document.getElementById('signup-email').value;
             const p = document.getElementById('signup-password').value;
-            loader.style.display = 'flex';
-            try { await createUserWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); loader.style.display = 'none'; }
+            try { await createUserWithEmailAndPassword(auth, e, p); } catch(err) { alert(err.message); }
         };
-
         document.getElementById('logout-btn').onclick = () => signOut(auth);
         document.getElementById('to-signup').onclick = () => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); };
         document.getElementById('to-login').onclick = () => { document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); };
-
+        
         document.getElementById('withdraw-btn').onclick = async () => {
             const amt = parseInt(document.getElementById('withdraw-amt').value);
             const id = document.getElementById('payment-id').value;
-            if(amt < 5000 || amt > userState.balance || !id) return customAlert("Invalid Request (Min 5000)");
-
-            loader.style.display = 'flex';
-            try {
-                await addDoc(collection(db, "withdrawals"), { userId: auth.currentUser.uid, amount: amt, method: document.getElementById('withdraw-method').value, paymentId: id, status: 'pending', date: serverTimestamp() });
-                const newBal = userState.balance - amt;
-                await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
-                userState.balance = newBal;
-                updateUI();
-                customAlert("Withdrawal Success!");
-            } catch(e) { customAlert(e.message); }
-            loader.style.display = 'none';
+            if(amt < 5000 || amt > userState.balance || !id) return customAlert("Check balance or amount (Min 5000)");
+            await addDoc(collection(db, "withdrawals"), { userId: auth.currentUser.uid, amount: amt, paymentId: id, status: 'pending', date: serverTimestamp() });
+            const newBal = userState.balance - amt;
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
+            userState.balance = newBal;
+            updateUI();
+            customAlert("Withdrawal Pending!");
         };
 
         function customAlert(m) {
@@ -295,7 +263,6 @@
             document.getElementById('alert-box').classList.remove('hidden');
         }
         window.closeAlert = () => document.getElementById('alert-box').classList.add('hidden');
-
     </script>
 </body>
 </html>
