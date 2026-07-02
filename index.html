@@ -23,6 +23,21 @@
         .main-page.active { display: flex; animation: fadeIn 0.4s ease-in-out; }
         .sub-page { display: none; }
         .sub-page.active { display: block; }
+        
+        /* Banner Style */
+        .banner-box {
+            width: 100%;
+            min-height: 100px;
+            background: #1a1a1a;
+            border: 1px dashed #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -67,17 +82,36 @@
         <main class="flex-grow p-4">
             <!-- Home -->
             <div id="home-page" class="sub-page active">
+                <!-- Balance Card -->
                 <div class="card-bg p-6 rounded-2xl mb-6">
                     <p class="text-gray-400 text-sm">Balance</p>
                     <h2 class="text-3xl font-bold"><span id="balance-txt">0</span> Coins</h2>
                 </div>
+
                 <h3 class="font-bold mb-4">Daily Tasks</h3>
+                
+                <!-- Task 1: Standard Video Ad -->
                 <div class="bg-orange-500 p-4 rounded-2xl flex justify-between items-center text-black mb-3">
                     <div>
                         <p class="font-bold">Watch Video Ad</p>
                         <p class="text-xs">Reward: 50 Coins</p>
                     </div>
-                    <button onclick="claimReward()" class="bg-white px-4 py-2 rounded-lg font-bold text-sm">Claim</button>
+                    <button onclick="claimReward(50)" class="bg-white px-4 py-2 rounded-lg font-bold text-sm">Claim</button>
+                </div>
+
+                <!-- Task 2: NEW Interstitial Ad -->
+                <div class="bg-indigo-600 p-4 rounded-2xl flex justify-between items-center text-white mb-3">
+                    <div>
+                        <p class="font-bold">Premium Interstitial</p>
+                        <p class="text-xs">Reward: 100 Coins</p>
+                    </div>
+                    <button onclick="claimReward(100)" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-bold text-sm">Watch</button>
+                </div>
+
+                <!-- BANNER AD AREA -->
+                <div class="banner-box" id="banner-ad-container">
+                    <p class="text-[10px] text-gray-600 uppercase tracking-widest">Advertisement</p>
+                    <!-- The SDK will automatically try to inject here -->
                 </div>
             </div>
 
@@ -106,7 +140,7 @@
             </div>
         </main>
 
-        <nav class="grid grid-cols-3 p-2 bg-zinc-900 border-t border-zinc-800">
+        <nav class="grid grid-cols-3 p-2 bg-zinc-900 border-t border-zinc-800 sticky bottom-0">
             <button onclick="navigateTo('home-page')" class="flex flex-col items-center py-2"><i data-lucide="home"></i><span class="text-[10px]">Home</span></button>
             <button onclick="navigateTo('wallet-page')" class="flex flex-col items-center py-2"><i data-lucide="wallet"></i><span class="text-[10px]">Wallet</span></button>
             <button onclick="navigateTo('profile-page')" class="flex flex-col items-center py-2"><i data-lucide="user"></i><span class="text-[10px]">Profile</span></button>
@@ -126,7 +160,6 @@
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, updateDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-        // UPDATED CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyCAVkef_IKMFfnvY3jonZthtJlz8_8W1I8",
             authDomain: "task-and-earn-131ce.firebaseapp.com",
@@ -147,6 +180,7 @@
         window.onload = () => {
             lucide.createIcons();
             onAuthStateChanged(auth, handleAuth);
+            loadBannerAd(); // Load banner on start
         };
 
         async function handleAuth(user) {
@@ -171,12 +205,20 @@
                     }
                 } catch (e) {
                     console.error(e);
-                    alert("Error loading data. Check Firestore Rules!");
+                    alert("Error loading data.");
                 }
             } else {
                 switchPage('auth-section');
             }
             loader.style.display = 'none';
+        }
+
+        // FUNCTION TO LOAD BANNER AD
+        function loadBannerAd() {
+            if (typeof window.show_11214225 === 'function') {
+                // 'inApp' or 'pop' is usually used for banner-like behavior in this SDK
+                window.show_11214225('inApp').catch(e => console.log("Banner not ready"));
+            }
         }
 
         function updateUI() {
@@ -186,7 +228,6 @@
             document.getElementById('user-email').innerText = userState.email;
         }
 
-        // Navigation
         window.navigateTo = (pageId) => {
             document.querySelectorAll('.sub-page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
@@ -197,7 +238,22 @@
             document.getElementById(id).classList.add('active');
         }
 
-        // Auth Actions
+        // Ad System (Updated for variable rewards)
+        window.claimReward = (amount) => {
+            if (typeof window.show_11214225 === 'function') {
+                window.show_11214225().then(async () => {
+                    const newBal = (userState.balance || 0) + amount;
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
+                    userState.balance = newBal;
+                    updateUI();
+                    customAlert(`${amount} Coins Added Successfully!`);
+                }).catch(() => customAlert("Ad failed to load. Please try again."));
+            } else {
+                customAlert("Ad service offline");
+            }
+        };
+
+        // Auth & Payout Logic (Existing)
         document.getElementById('login-btn').onclick = async () => {
             const e = document.getElementById('login-email').value;
             const p = document.getElementById('login-password').value;
@@ -217,22 +273,6 @@
         document.getElementById('to-signup').onclick = () => { document.getElementById('login-view').classList.add('hidden'); document.getElementById('signup-view').classList.remove('hidden'); };
         document.getElementById('to-login').onclick = () => { document.getElementById('signup-view').classList.add('hidden'); document.getElementById('login-view').classList.remove('hidden'); };
 
-        // Ad System
-        window.claimReward = () => {
-            if (typeof window.show_11214225 === 'function') {
-                window.show_11214225().then(async () => {
-                    const newBal = userState.balance + 50;
-                    await updateDoc(doc(db, "users", auth.currentUser.uid), { balance: newBal });
-                    userState.balance = newBal;
-                    updateUI();
-                    customAlert("50 Coins Added!");
-                }).catch(() => customAlert("Ad failed to load"));
-            } else {
-                customAlert("Ad service offline");
-            }
-        };
-
-        // Payout
         document.getElementById('withdraw-btn').onclick = async () => {
             const amt = parseInt(document.getElementById('withdraw-amt').value);
             const id = document.getElementById('payment-id').value;
@@ -250,7 +290,6 @@
             loader.style.display = 'none';
         };
 
-        // Custom Alerts
         function customAlert(m) {
             document.getElementById('alert-msg').innerText = m;
             document.getElementById('alert-box').classList.remove('hidden');
