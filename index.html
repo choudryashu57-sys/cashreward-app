@@ -16,8 +16,8 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg); color: #fff; overflow-x: hidden; -webkit-tap-highlight-color: transparent; }
         .glass { background: rgba(23, 23, 23, 0.8); backdrop-filter: blur(20px); border: 1px solid #262626; }
         .gold-grad { background: linear-gradient(135deg, #fb923c 0%, #d97706 100%); }
-        .main-view { display: none; min-height: 100vh; }
-        .main-view.active { display: flex; flex-direction: column; }
+        .main-view { display: none; min-height: 100vh; flex-direction: column; }
+        .main-view.active { display: flex; }
         .tab-view { display: none; }
         .tab-view.active { display: block; animation: tabIn 0.4s ease; }
         @keyframes tabIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -25,132 +25,109 @@
         .nav-active { color: var(--accent); }
         input { background: #0a0a0a !important; border: 1px solid #222 !important; color: #fff !important; outline: none; }
 
-        /* Real Working Banner Styling */
-        .native-banner-area {
-            width: 100%;
-            min-height: 120px;
-            background: #0f0f0f;
-            border: 1px dashed #262626;
-            border-radius: 20px;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .banner-label {
-            position: absolute; top: 5px; left: 50%; transform: translateX(-50%);
-            font-size: 7px; color: #333; letter-spacing: 2px; font-weight: 800;
+        /* Banner Style */
+        .bottom-ad-zone {
+            width: 100%; min-height: 60px; background: #000;
+            border-top: 1px solid #1a1a1a; display: flex;
+            align-items: center; justify-content: center;
+            position: fixed; bottom: 80px; z-index: 40;
         }
     </style>
 </head>
 <body class="max-w-md mx-auto">
 
     <!-- Preloader -->
-    <div id="loader_global" class="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
+    <div id="loader_scr" class="fixed inset-0 bg-black flex items-center justify-center z-[9999]">
         <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-orange-500"></div>
     </div>
 
-    <!-- Login/Register -->
-    <div id="auth_container" class="main-view p-8 justify-center">
-        <h1 class="text-4xl font-black italic text-orange-500 text-center mb-10 uppercase tracking-tighter">Elite Rewards</h1>
+    <!-- Auth View -->
+    <div id="view_auth" class="main-view p-8 justify-center">
+        <h1 class="text-4xl font-black italic text-orange-500 text-center mb-10 uppercase tracking-tighter italic">CASHREWARD</h1>
         <div id="box_login" class="space-y-4">
-            <input id="l_email" type="email" placeholder="Email" class="w-full p-4 rounded-2xl border">
-            <input id="l_pass" type="password" placeholder="Password" class="w-full p-4 rounded-2xl border">
-            <button onclick="handleLogin()" class="w-full p-4 gold-grad text-black font-black rounded-2xl active:scale-95 transition-all shadow-xl">LOG IN</button>
-            <p class="text-center text-xs text-zinc-500 mt-4">New? <span class="text-orange-500 underline cursor-pointer" onclick="switchAuth(true)">Join Now</span></p>
+            <input id="f_l_email" type="email" placeholder="Email" class="w-full p-4 rounded-2xl border border-zinc-800">
+            <input id="f_l_pass" type="password" placeholder="Password" class="w-full p-4 rounded-2xl border border-zinc-800">
+            <button onclick="handleLogin()" class="w-full p-4 gold-grad text-black font-black rounded-2xl active:scale-95 shadow-xl">LOG IN</button>
+            <p class="text-center text-xs text-zinc-500 mt-4 underline cursor-pointer" onclick="toggleScreens(true)">New User? Signup</p>
         </div>
-        <div id="box_register" class="hidden space-y-4">
-            <input id="r_name" type="text" placeholder="Name" class="w-full p-4 rounded-2xl border">
-            <input id="r_email" type="email" placeholder="Email Address" class="w-full p-4 rounded-2xl border">
-            <input id="r_pass" type="password" placeholder="Password" class="w-full p-4 rounded-2xl border">
-            <button onclick="handleSignup()" class="w-full p-4 gold-grad text-black font-black rounded-2xl active:scale-95 transition-all shadow-xl">CREATE ACCOUNT</button>
-            <p class="text-center text-xs text-zinc-500 mt-4">Member? <span class="text-orange-500 underline cursor-pointer" onclick="switchAuth(false)">Login</span></p>
+        <div id="box_reg" class="hidden space-y-4">
+            <input id="f_r_name" type="text" placeholder="Full Name" class="w-full p-4 rounded-2xl">
+            <input id="f_r_email" type="email" placeholder="Email Address" class="w-full p-4 rounded-2xl">
+            <input id="f_r_pass" type="password" placeholder="Password" class="w-full p-4 rounded-2xl">
+            <button onclick="handleSignup()" class="w-full p-4 gold-grad text-black font-black rounded-2xl">CREATE ACCOUNT</button>
+            <p class="text-center text-xs text-zinc-500 mt-4 underline cursor-pointer" onclick="toggleScreens(false)">Back to Login</p>
         </div>
     </div>
 
     <!-- Dashboard -->
-    <div id="app_container" class="main-view pb-32">
-        <header class="p-6 bg-black flex justify-between items-center sticky top-0 z-50 border-b border-zinc-900">
-            <span class="font-black italic text-xl">ELITE<span class="text-orange-500">PRO</span></span>
-            <div class="px-4 py-1 bg-zinc-900 border border-zinc-800 rounded-full">
-                <span class="text-orange-500 font-black text-[11px]">₹ <span id="val_rupee">0.00</span></span>
+    <div id="view_dashboard" class="main-view pb-40">
+        <header class="p-6 bg-black/90 backdrop-blur-md flex justify-between items-center border-b border-zinc-900 sticky top-0 z-50">
+            <h1 class="font-black italic text-xl uppercase">Elite<span class="text-orange-500">PRO</span></h1>
+            <div class="px-4 py-1.5 bg-zinc-900 border border-zinc-800 rounded-full font-black text-xs text-orange-500">
+                ₹ <span id="txt_rupee">0.00</span>
             </div>
         </header>
 
         <main class="flex-grow p-6">
-            <!-- Home -->
-            <div id="tab_home" class="tab-view active space-y-6">
-                <div class="glass p-10 rounded-[3rem] text-center shadow-2xl">
-                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-1">My Balance</p>
-                    <h2 class="text-6xl font-black tracking-tighter" id="val_coins">0</h2>
-                </div>
-
-                <!-- NEW BANNER SECTION -->
-                <div class="native-banner-area" id="container-11214225">
-                    <span class="banner-label uppercase">Advertisement</span>
-                    <p class="text-[9px] text-zinc-800 font-bold">LOADING NATIVE BANNER...</p>
+            <!-- Tab Home -->
+            <div id="page_home" class="tab-view active space-y-6">
+                <div class="glass p-10 rounded-[3rem] text-center border-orange-500/10 border">
+                    <p class="text-zinc-600 text-[10px] font-black uppercase mb-1">Coin Wallet</p>
+                    <h2 class="text-6xl font-black tracking-tighter" id="txt_coins">0</h2>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div onclick="rewardAdPop(50)" class="glass p-6 rounded-3xl text-center active:bg-zinc-900 transition-all border border-zinc-800">
+                    <!-- MONETAG VIDEO AD TASK -->
+                    <div onclick="playVideoTask(50)" class="glass p-6 rounded-3xl text-center active:bg-orange-500 active:text-black transition-all">
                         <i data-lucide="play-circle" class="mx-auto mb-2 text-orange-500 w-8 h-8"></i>
-                        <p class="font-black text-[10px] uppercase">Reward Video</p>
+                        <p class="font-black text-[10px] uppercase">Earn 50</p>
                     </div>
-                    <div onclick="collectDaily()" class="glass p-6 rounded-3xl text-center active:bg-zinc-900 border border-zinc-800">
-                        <i data-lucide="gift" class="mx-auto mb-2 text-orange-500 w-8 h-8"></i>
-                        <p class="font-black text-[10px] uppercase tracking-tighter">Daily Gift</p>
+                    <div onclick="playVideoTask(100)" class="glass p-6 rounded-3xl text-center bg-orange-500 text-black shadow-lg">
+                        <i data-lucide="zap" class="mx-auto mb-2 w-8 h-8"></i>
+                        <p class="font-black text-[10px] uppercase italic">Big Video</p>
                     </div>
+                </div>
+
+                <div onclick="getDailyGift()" class="w-full glass p-5 rounded-2xl flex justify-between items-center border-l-2 border-orange-500">
+                    <p class="font-bold text-sm">Daily Bonus Reward</p>
+                    <span class="bg-orange-500/10 text-orange-500 px-3 py-1 rounded-full text-[10px] font-black tracking-tighter uppercase">Collect</span>
                 </div>
             </div>
 
-            <!-- Task Missions -->
-            <div id="tab_missions" class="tab-view space-y-6">
-                <h2 class="text-2xl font-black italic">ACTIVE MISSIONS</h2>
-                <div id="missions_list" class="space-y-4"></div>
-            </div>
-
-            <!-- Tracker -->
-            <div id="tab_tracker" class="tab-view space-y-6">
-                <div class="glass p-10 rounded-[3rem] text-center space-y-6 border border-orange-500/20">
-                    <h2 class="text-4xl font-black" id="trk_perc">0%</h2>
-                    <p class="text-xs text-zinc-500 font-bold uppercase tracking-[4px]">Achievement</p>
-                    <h4 class="text-3xl font-black text-white italic" id="trk_val">0 / 0</h4>
-                    <button id="btn_mission_claim" class="w-full py-5 rounded-[2rem] bg-zinc-800 text-zinc-600 font-black cursor-not-allowed">GOAL PENDING</button>
-                </div>
-                <button onclick="changeAppTab('tab_home')" class="w-full text-zinc-500 text-[10px] font-black uppercase underline">Quit current mission</button>
-            </div>
-
-            <!-- Wallet -->
-            <div id="tab_wallet" class="tab-view">
-                <h2 class="text-2xl font-black mb-8 italic">WITHDRAWAL</h2>
+            <!-- Tab Wallet -->
+            <div id="page_wallet" class="tab-view space-y-8">
+                <h2 class="text-3xl font-black italic">CASHOUT</h2>
                 <div class="glass p-8 rounded-[3rem] space-y-5">
-                    <input id="pay_id" placeholder="Paytm or UPI ID" class="w-full p-4 rounded-xl">
-                    <input id="pay_amt" type="number" placeholder="Coins / Rupee" class="w-full p-4 rounded-xl">
-                    <button onclick="initWithdrawAd()" class="w-full p-5 gold-grad text-black font-black rounded-3xl shadow-xl uppercase">Submit Now</button>
+                    <input id="in_pay_id" placeholder="Paytm or UPI ID" class="w-full p-4 rounded-xl border border-white/5">
+                    <input id="in_pay_amt" type="number" placeholder="Enter Amount" class="w-full p-4 rounded-xl">
+                    <button onclick="requestPayoutAd()" class="w-full p-5 gold-grad text-black font-black rounded-3xl uppercase tracking-widest shadow-xl">Withdraw</button>
                 </div>
             </div>
+
         </main>
 
-        <nav class="fixed bottom-0 left-0 right-0 p-5 bg-black border-t border-zinc-900 grid grid-cols-4 z-50">
-            <button onclick="changeAppTab('tab_home')" class="nav-btn nav-active flex flex-col items-center gap-1" data-tab="tab_home"><i data-lucide="grid"></i></button>
-            <button onclick="changeAppTab('tab_missions')" class="nav-btn flex flex-col items-center gap-1" data-tab="tab_missions"><i data-lucide="award"></i></button>
-            <button onclick="changeAppTab('tab_wallet')" class="nav-btn flex flex-col items-center gap-1" data-tab="tab_wallet"><i data-lucide="wallet"></i></button>
-            <button onclick="killSession()" class="nav-btn flex flex-col items-center gap-1 text-red-500/30"><i data-lucide="log-out"></i></button>
+        <!-- BANNER ZONE -->
+        <div class="bottom-ad-zone" id="container-11214225">
+             <span class="text-[7px] font-black text-zinc-900 tracking-[5px]">ADVERTISEMENT</span>
+        </div>
+
+        <nav class="fixed bottom-0 left-0 right-0 p-5 bg-black border-t border-zinc-900 grid grid-cols-3 z-50">
+            <button onclick="switchTab('page_home')" class="nav-btn nav-active flex flex-col items-center gap-1" data-tab="page_home"><i data-lucide="layout-grid"></i></button>
+            <button onclick="switchTab('page_wallet')" class="nav-btn flex flex-col items-center gap-1" data-tab="page_wallet"><i data-lucide="wallet"></i></button>
+            <button onclick="logOutMaster()" class="nav-btn flex flex-col items-center gap-1 text-red-500/20"><i data-lucide="log-out"></i></button>
         </nav>
     </div>
 
-    <!-- App Alert -->
-    <div id="app_alert_box" class="hidden fixed inset-0 bg-[#000]/98 z-[10000] flex flex-col items-center justify-center p-12 text-center backdrop-blur-xl">
-        <p id="app_alert_msg" class="text-3xl font-black mb-10 italic uppercase text-orange-500 tracking-tighter"></p>
-        <button onclick="closeAppAlert()" class="gold-grad px-16 py-4 rounded-full text-black font-black uppercase shadow-2xl">Confirm</button>
+    <!-- Alert Modal -->
+    <div id="alert_box" class="hidden fixed inset-0 bg-[#000]/98 backdrop-blur-3xl z-[9999] flex flex-col items-center justify-center p-12 text-center">
+        <p id="alert_msg" class="text-3xl font-black mb-10 italic uppercase text-orange-500"></p>
+        <button onclick="dismissAlert()" class="gold-grad px-16 py-4 rounded-full text-black font-black uppercase shadow-2xl">Dismiss</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, updateDoc, collection, setDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, doc, onSnapshot, updateDoc, setDoc, addDoc, serverTimestamp, collection } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         // CONFIG
         const firebaseConfig = { 
@@ -164,121 +141,94 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        let currentU = null; let trackerInstance = null;
+        let uData = null;
 
-        // AUTH HANDLER
+        // AUTH SYSTEM
         onAuthStateChanged(auth, u => {
             if (u) {
                 onSnapshot(doc(db, "users", u.uid), s => {
                     if (s.exists()) {
-                        currentU = s.data();
-                        document.getElementById('val_coins').innerText = (currentU.coins || 0).toLocaleString();
-                        document.getElementById('val_rupee').innerText = (currentU.rupees || 0).toFixed(2);
-                        if(trackerInstance) updateProgressUI();
-                        switchScene('app_container');
-                        initMissions();
+                        uData = s.data();
+                        document.getElementById('txt_coins').innerText = (uData.coins || 0).toLocaleString();
+                        document.getElementById('txt_rupee').innerText = (uData.rupees || 0).toFixed(2);
+                        showFinalUI('view_dashboard');
                     } else {
                         setDoc(doc(db, "users", u.uid), { name: "User", email: u.email, coins: 50, rupees: 0, lastCheck: "" });
                     }
                 });
-                // LOAD WORKING BANNER
-                loadWorkingBanner();
-            } else { switchScene('auth_container'); }
-            document.getElementById('loader_global').style.display = 'none';
+                initInAppAds(); 
+            } else { showFinalUI('view_auth'); }
+            document.getElementById('loader_scr').style.display = 'none';
         });
 
-        // 🟢 BANNER AD (IN-APP)
-        function loadWorkingBanner() {
-            if (window.show_11214225) {
+        // 🟡 MONETAG REWARDED VIDEO TASK (Coin Earning)
+        window.playVideoTask = (amt) => {
+            if (typeof window.show_11214225 === 'function') {
+                // Hum yahan sirf 'Reward Interstitial' (Default Video) call karenge
+                window.show_11214225().then(async () => {
+                    await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: uData.coins + amt });
+                    openAppAlert("EXCELLENT! +" + amt + " COINS");
+                }).catch(() => openAppAlert("VIDEO NOT READY. TRY IN 5S"));
+            }
+        };
+
+        // 🔵 MONETAG IN-APP (Permanent Banner Style)
+        function initInAppAds() {
+            if (typeof window.show_11214225 === 'function') {
                 window.show_11214225({
                     type: 'inApp',
-                    inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 5, everyPage: false }
+                    inAppSettings: { frequency: 2, capping: 0.1, interval: 30, timeout: 3, everyPage: false }
                 });
             }
         }
 
-        // 🟡 REWARDED POPUP
-        window.rewardAdPop = (amt) => {
-            if(window.show_11214225) {
-                window.show_11214225('pop').then(async () => {
-                    await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: currentU.coins + amt });
-                    callAlert("AWARDED: +" + amt + " COINS");
-                }).catch(() => callAlert("AD STILL LOADING..."));
-            }
+        // 🔴 NAVIGATION/ACTION POPUPS (Wallets & Withdrawals)
+        window.switchTab = (id) => {
+            // Money task me distraction rokne ke liye yahan popup kam use hota hai
+            if(window.show_11214225 && Math.random() > 0.8) window.show_11214225('pop').catch(()=>{}); 
+            
+            document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('nav-active', b.dataset.tab === id));
         };
 
-        // 🔵 WITHDRAW AD
-        window.initWithdrawAd = () => {
-            const upi = document.getElementById('pay_id').value;
-            const amt = parseInt(document.getElementById('pay_amt').value);
-            if(!upi || !amt || amt < 10) return callAlert("INPUT ERROR (MIN 10)");
+        window.requestPayoutAd = () => {
+            const upi = document.getElementById('in_pay_id').value;
+            const amt = parseInt(document.getElementById('in_pay_amt').value);
+            if(!upi || !amt) return openAppAlert("INPUT MISSING");
 
+            // Forced Non-rewarded pop before withdrawal
             if(window.show_11214225) {
                 window.show_11214225('pop').finally(async () => {
                     await addDoc(collection(db, "withdrawals"), { userId: auth.currentUser.uid, amount: amt, upi: upi, status: 'pending', date: serverTimestamp() });
-                    callAlert("PAYOUT REQUEST SUBMITTED");
+                    openAppAlert("SUCCESS! REQUEST SENT.");
                 });
             }
         };
 
-        // UI ACTIONS
-        window.collectDaily = async () => {
+        // DAILY
+        window.getDailyGift = async () => {
             const today = new Date().toLocaleDateString();
-            if(currentU.lastCheck === today) return callAlert("TAKEN FOR TODAY");
-            await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: currentU.coins + 100, lastCheck: today });
-            callAlert("+100 COINS RECEIVED");
+            if(uData.lastCheck === today) return openAppAlert("TOMORROW AGAIN");
+            await updateDoc(doc(db, "users", auth.currentUser.uid), { coins: uData.coins + 100, lastCheck: today });
+            openAppAlert("RECEIVED 100 COINS!");
         };
 
-        function initMissions() {
-            onSnapshot(collection(db, "challenges"), snap => {
-                const list = document.getElementById('missions_list'); list.innerHTML = '';
-                snap.forEach(d => {
-                    const c = d.data();
-                    const el = document.createElement('div');
-                    el.className = "glass p-6 rounded-3xl flex justify-between items-center shadow-lg border border-white/5";
-                    el.innerHTML = `<div><p class="font-bold text-xs opacity-50 uppercase">${c.title}</p><p class="font-black text-lg">${c.target} COINS GOAL</p></div>
-                        <button class="gold-grad text-black text-[9px] font-black px-6 py-3 rounded-full">JOIN</button>`;
-                    el.querySelector('button').onclick = () => { trackerInstance = { id: d.id, start: currentU.coins, goal: c.target }; changeAppTab('tab_tracker'); };
-                    list.appendChild(el);
-                });
-            });
-        }
-
-        function updateProgressUI() {
-            const curr = (currentU.coins || 0) - trackerInstance.start;
-            const perc = Math.min(100, Math.floor((curr/trackerInstance.goal)*100));
-            document.getElementById('trk_val').innerText = curr + " / " + trackerInstance.goal;
-            document.getElementById('trk_perc').innerText = perc + "%";
-            if(perc >= 100) {
-                const btn = document.getElementById('btn_mission_claim');
-                btn.className = "w-full py-5 rounded-[2rem] gold-grad text-black font-black uppercase";
-                btn.innerText = "Claim Rupee Bonus";
-                btn.onclick = async () => {
-                    await addDoc(collection(db, "userChallenges"), { userId: auth.currentUser.uid, cid: trackerInstance.id, status: 'submitted', date: serverTimestamp() });
-                    trackerInstance = null; callAlert("SENT TO ADMIN"); changeAppTab('tab_home');
-                }
-            }
-        }
-
-        // LOGIN / REG
-        window.handleLogin = () => {
-            signInWithEmailAndPassword(auth, l_email.value, l_pass.value).catch(err => callAlert("AUTH ERROR"));
+        // LOGIC UI
+        window.handleLogin = () => signInWithEmailAndPassword(auth, f_l_email.value, f_l_pass.value).catch(err => openAppAlert(err.message));
+        window.handleSignup = () => createUserWithEmailAndPassword(auth, f_r_email.value, f_r_pass.value).catch(err => openAppAlert(err.message));
+        window.logOutMaster = () => signOut(auth);
+        
+        window.toggleScreens = isReg => {
+            document.getElementById('box_login').classList.toggle('hidden', isReg);
+            document.getElementById('box_reg').classList.toggle('hidden', !isReg);
         };
-        window.handleSignup = () => {
-            createUserWithEmailAndPassword(auth, r_email.value, r_pass.value).catch(err => callAlert(err.message));
-        };
-        window.killSession = () => signOut(auth);
-
-        // SYSTEM UTILS
-        window.switchAuth = s => { document.getElementById('box_login').classList.toggle('hidden', s); document.getElementById('box_register').classList.toggle('hidden', !s); }
-        function switchScene(id) { document.querySelectorAll('.main-view').forEach(v => v.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        window.changeAppTab = id => {
-            document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+        function showFinalUI(id) {
+            document.querySelectorAll('.main-view').forEach(m => m.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(n => n.classList.toggle('nav-active', n.dataset.tab === id));
-        };
-        window.callAlert = m => { document.getElementById('app_alert_msg').innerText = m; document.getElementById('app_alert_box').classList.remove('hidden'); }
-        window.closeAppAlert = () => document.getElementById('app_alert_box').classList.add('hidden');
+        }
+        window.openAppAlert = m => { document.getElementById('alert_msg').innerText = m; document.getElementById('alert_box').classList.remove('hidden'); };
+        window.dismissAlert = () => document.getElementById('alert_box').classList.add('hidden');
         lucide.createIcons();
     </script>
 </body>
